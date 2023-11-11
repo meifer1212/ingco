@@ -10,18 +10,14 @@ use Illuminate\Support\Facades\Validator;
 
 /**
  * @OA\Info(
- *     title="Laravel API",
+ *     title="Documentación para la API de tareas (INGCO)",
  *     version="1.0.0",
  *     @OA\Contact(
- *         email="juanjo_meifer@hotmail.com"
+ *         email="meifer.elitepvpers@gmail.com"
  *    )
  * )
  */
 /**
- * @OA\Tag(
- *     name="Tasks",
- *     description="API endpoints related to tasks"
- * )
  * @OA\Tag(
  *     name="Authentication",
  *     description="API endpoints for user authentication"
@@ -31,7 +27,7 @@ use Illuminate\Support\Facades\Validator;
 /**
  * @OA\Tag(
  *     name="Tasks",
- *     description="API endpoints related to tasks"
+ *     description="API endpoints relacionado con las tareas. (se requiere que se le envie en el header el token de autenticación Bearrer). Verificar la documentación de la API de autenticación para más información"
  * )
  */
 class TaskController extends Controller
@@ -230,19 +226,26 @@ class TaskController extends Controller
 
     /**
      * @OA\Post(
-     *     path="/api/tasks/create",
+     *     path="/api/task",
      *     operationId="createTaskAPI",
      *     tags={"Tasks"},
      *     summary="Crear una nueva tarea",
      *     description="Crea una nueva tarea con la información proporcionada",
      *     @OA\RequestBody(
      *         required=true,
+     *         @OA\JsonContent(
+     *             required={"name", "due_date", "user_id", "tags"},
+     *             @OA\Property(property="name", type="string", example="Nombre de la tarea"),
+     *             @OA\Property(property="description", type="string", example="Descripción de la tarea"),
+     *             @OA\Property(property="due_date", type="string", format="date-time", example="2023-01-01 12:00:00"),
+     *             @OA\Property(property="user_id", type="integer", example=1),
+     *             @OA\Property(property="tags", type="string", example="1,2,3,6"),
+     *         ),
      *     ),
      *     @OA\Response(
      *         response=200,
      *         description="Tarea creada correctamente",
      *         @OA\JsonContent(
-     *             type="object",
      *             @OA\Property(property="task"),
      *             @OA\Property(property="message", type="string", example="Tarea creada correctamente"),
      *         ),
@@ -251,15 +254,14 @@ class TaskController extends Controller
      *         response=422,
      *         description="Error de validación",
      *         @OA\JsonContent(
-     *             type="object",
      *             @OA\Property(property="message", type="string", example="Error de validación"),
-     *             @OA\Property(property="errors", type="object", example={"field": {"error message"}}),
+     *             @OA\Property(property="errors", type="object", example={"name": {"El campo name es requerido."}}),
      *         ),
      *     ),
-     *     security={
-     *         {"passport": {}}
-     *     }
      * )
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse
      */
     public function createTaskAPI(Request $request)
     {
@@ -329,8 +331,8 @@ class TaskController extends Controller
 
     /**
      * @OA\Put(
-     *     path="/api/tasks/{task}/update",
-     *     operationId="updateTaskAPI",
+     *     path="/api/task/{task}",
+     *     operationId="updateTaskApi",
      *     tags={"Tasks"},
      *     summary="Actualizar una tarea existente",
      *     description="Actualiza una tarea existente con la información proporcionada",
@@ -339,16 +341,23 @@ class TaskController extends Controller
      *         in="path",
      *         description="ID de la tarea a actualizar",
      *         required=true,
-     *         @OA\Schema(type="integer")
+     *         @OA\Schema(type="integer", format="int64")
      *     ),
      *     @OA\RequestBody(
      *         required=true,
+     *         @OA\JsonContent(
+     *             required={"name", "due_date", "user_id", "tags"},
+     *             @OA\Property(property="name", type="string", example="Nombre actualizado de la tarea"),
+     *             @OA\Property(property="description", type="string", example="Descripción actualizada de la tarea"),
+     *             @OA\Property(property="due_date", type="string", format="date-time", example="2023-01-01 12:00:00"),
+     *             @OA\Property(property="user_id", type="integer", example=1),
+     *             @OA\Property(property="tags", type="string", example="1,2,3,6"),
+     *         ),
      *     ),
      *     @OA\Response(
      *         response=200,
      *         description="Tarea actualizada correctamente",
      *         @OA\JsonContent(
-     *             type="object",
      *             @OA\Property(property="task"),
      *             @OA\Property(property="message", type="string", example="Tarea actualizada correctamente"),
      *         ),
@@ -357,15 +366,15 @@ class TaskController extends Controller
      *         response=422,
      *         description="Error de validación",
      *         @OA\JsonContent(
-     *             type="object",
      *             @OA\Property(property="message", type="string", example="Error de validación"),
-     *             @OA\Property(property="errors", type="object", example={"field": {"error message"}}),
+     *             @OA\Property(property="errors", type="object", example={"name": {"El campo name es requerido."}}),
      *         ),
      *     ),
-     *     security={
-     *         {"passport": {}}
-     *     }
      * )
+     *
+     * @param \App\Models\Task $task
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse
      */
     public function updateTaskApi(Task $task, Request $request)
     {

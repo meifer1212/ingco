@@ -7,10 +7,10 @@ use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Routing\Controller as BaseController;
 /**
  * @OA\Info(
- *     title="Laravel API",
+ *     title="Documentación para la API de tareas (INGCO)s",
  *     version="1.0.0",
  *     @OA\Contact(
- *         email="juanjo_meifer@hotmail.com"
+ *         email="meifer.elitepvpers@gmail.com"
  *    )
  * )
  */

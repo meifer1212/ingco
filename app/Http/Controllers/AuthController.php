@@ -10,10 +10,10 @@ use Illuminate\Support\Facades\Auth;
 
 /**
  * @OA\Info(
- *     title="Laravel API",
+ *     title="Documentación para la API de tareas (INGCO)",
  *     version="1.0.0",
  *     @OA\Contact(
- *         email="juanjo_meifer@hotmail.com"
+ *         email="meifer.elitepvpers@gmail.com"
  *    )
  * )
  */
@@ -33,7 +33,7 @@ use Illuminate\Support\Facades\Auth;
  /**
  * @OA\Tag(
  *     name="Authentication",
- *     description="API endpoints for user authentication"
+ *     description="API endpoints relacionada con la autenticación"
  * )
  */
 class AuthController extends Controller

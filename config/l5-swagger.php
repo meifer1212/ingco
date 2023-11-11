@@ -5,9 +5,9 @@ return [
     'documentations' => [
         'default' => [
             'api' => [
-                'title' => 'Mi API',
+                'title' => 'Documentación para la API de tareas (INGCO)',
                 'version' => '1.0.0',
-                'description' => 'Descripción de mi API',
+                'description' => 'Api para la gestión de tareas de la empresa INGCO',
             ],
 
             'routes' => [

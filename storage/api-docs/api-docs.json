@@ -1,7 +1,7 @@
 {
     "openapi": "3.0.0",
     "info": {
-        "title": "Documentación para la API de tareas (INGCO)",
+        "title": "Documentación para la API de tareas (INGCO)s",
         "contact": {
             "email": "meifer.elitepvpers@gmail.com"
         },
@@ -10,7 +10,9 @@
     "paths": {
         "/api/login": {
             "post": {
-                "tags": ["Authentication"],
+                "tags": [
+                    "Authentication"
+                ],
                 "summary": "Iniciar sesión",
                 "description": "Inicia sesión con las credenciales proporcionadas",
                 "operationId": "loginAPI",
@@ -19,7 +21,10 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "required": ["email", "password"],
+                                "required": [
+                                    "email",
+                                    "password"
+                                ],
                                 "properties": {
                                     "email": {
                                         "type": "string",
@@ -76,7 +81,9 @@
         },
         "/api/register": {
             "post": {
-                "tags": ["Authentication"],
+                "tags": [
+                    "Authentication"
+                ],
                 "summary": "Registro de usuario",
                 "description": "Registra un nuevo usuario",
                 "operationId": "registerAPI",
@@ -85,7 +92,11 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "required": ["name", "email", "password"],
+                                "required": [
+                                    "name",
+                                    "email",
+                                    "password"
+                                ],
                                 "properties": {
                                     "name": {
                                         "type": "string",
@@ -138,7 +149,9 @@
                                         "errors": {
                                             "type": "object",
                                             "example": {
-                                                "field": ["error message"]
+                                                "field": [
+                                                    "error message"
+                                                ]
                                             }
                                         }
                                     },
@@ -152,7 +165,9 @@
         },
         "/api/logout": {
             "post": {
-                "tags": ["Authentication"],
+                "tags": [
+                    "Authentication"
+                ],
                 "summary": "Cerrar sesión",
                 "description": "Cierra la sesión actual del usuario",
                 "operationId": "logoutAPI",
@@ -183,7 +198,9 @@
         },
         "/api/tasks": {
             "get": {
-                "tags": ["Tasks"],
+                "tags": [
+                    "Tasks"
+                ],
                 "summary": "Obtener todas las tareas",
                 "description": "Retorna todas las tareas disponibles",
                 "operationId": "getTasksAPI",
@@ -215,7 +232,9 @@
         },
         "/api/tags": {
             "get": {
-                "tags": ["Tags"],
+                "tags": [
+                    "Tags"
+                ],
                 "summary": "Obtener todas las etiquetas",
                 "description": "Retorna todas las etiquetas disponibles",
                 "operationId": "getTagsAPI",
@@ -245,14 +264,52 @@
                 ]
             }
         },
-        "/api/tasks/create": {
+        "/api/task": {
             "post": {
-                "tags": ["Tasks"],
+                "tags": [
+                    "Tasks"
+                ],
                 "summary": "Crear una nueva tarea",
                 "description": "Crea una nueva tarea con la información proporcionada",
                 "operationId": "createTaskAPI",
                 "requestBody": {
-                    "required": true
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "due_date",
+                                    "user_id",
+                                    "tags"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Nombre de la tarea"
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "example": "Descripción de la tarea"
+                                    },
+                                    "due_date": {
+                                        "type": "string",
+                                        "format": "date-time",
+                                        "example": "2023-01-01 12:00:00"
+                                    },
+                                    "user_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "tags": {
+                                        "type": "string",
+                                        "example": "1,2,3,6"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
                 },
                 "responses": {
                     "200": {
@@ -285,7 +342,9 @@
                                         "errors": {
                                             "type": "object",
                                             "example": {
-                                                "field": ["error message"]
+                                                "name": [
+                                                    "El campo name es requerido."
+                                                ]
                                             }
                                         }
                                     },
@@ -294,17 +353,14 @@
                             }
                         }
                     }
-                },
-                "security": [
-                    {
-                        "passport": []
-                    }
-                ]
+                }
             }
         },
         "/api/users": {
             "get": {
-                "tags": ["Users"],
+                "tags": [
+                    "Users"
+                ],
                 "summary": "Obtener todos los usuarios",
                 "description": "Retorna todos los usuarios disponibles",
                 "operationId": "getUsersAPI",
@@ -334,12 +390,14 @@
                 ]
             }
         },
-        "/api/tasks/{task}/update": {
+        "/api/task/{task}": {
             "put": {
-                "tags": ["Tasks"],
+                "tags": [
+                    "Tasks"
+                ],
                 "summary": "Actualizar una tarea existente",
                 "description": "Actualiza una tarea existente con la información proporcionada",
-                "operationId": "updateTaskAPI",
+                "operationId": "updateTaskApi",
                 "parameters": [
                     {
                         "name": "task",
@@ -347,12 +405,49 @@
                         "description": "ID de la tarea a actualizar",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "integer",
+                            "format": "int64"
                         }
                     }
                 ],
                 "requestBody": {
-                    "required": true
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "due_date",
+                                    "user_id",
+                                    "tags"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Nombre actualizado de la tarea"
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "example": "Descripción actualizada de la tarea"
+                                    },
+                                    "due_date": {
+                                        "type": "string",
+                                        "format": "date-time",
+                                        "example": "2023-01-01 12:00:00"
+                                    },
+                                    "user_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "tags": {
+                                        "type": "string",
+                                        "example": "1,2,3,6"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
                 },
                 "responses": {
                     "200": {
@@ -385,7 +480,9 @@
                                         "errors": {
                                             "type": "object",
                                             "example": {
-                                                "field": ["error message"]
+                                                "name": [
+                                                    "El campo name es requerido."
+                                                ]
                                             }
                                         }
                                     },
@@ -394,17 +491,14 @@
                             }
                         }
                     }
-                },
-                "security": [
-                    {
-                        "passport": []
-                    }
-                ]
+                }
             }
         },
         "/api/tasks/{task}/delete": {
             "delete": {
-                "tags": ["Tasks"],
+                "tags": [
+                    "Tasks"
+                ],
                 "summary": "Eliminar una tarea",
                 "description": "Elimina una tarea existente",
                 "operationId": "deleteTaskAPI",
@@ -448,11 +542,11 @@
     "tags": [
         {
             "name": "Authentication",
-            "description": "API endpoints for user authentication"
+            "description": "API endpoints relacionada con la autenticación"
         },
         {
             "name": "Tasks",
-            "description": "API endpoints related to tasks"
+            "description": "API endpoints relacionado con las tareas. (se requiere que se le envie en el header el token de autenticación Bearrer). Verificar la documentación de la API de autenticación para más información"
         }
     ]
 }
