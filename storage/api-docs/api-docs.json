@@ -1,0 +1,458 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Documentación para la API de tareas (INGCO)",
+        "contact": {
+            "email": "meifer.elitepvpers@gmail.com"
+        },
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/api/login": {
+            "post": {
+                "tags": ["Authentication"],
+                "summary": "Iniciar sesión",
+                "description": "Inicia sesión con las credenciales proporcionadas",
+                "operationId": "loginAPI",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": ["email", "password"],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "usuario@dominio.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "contraseña"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Inicio de sesión exitoso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "user": {},
+                                        "token": {
+                                            "type": "string",
+                                            "example": "auth_token"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Credenciales incorrectas",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Las credenciales no coinciden con nuestros registros"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/register": {
+            "post": {
+                "tags": ["Authentication"],
+                "summary": "Registro de usuario",
+                "description": "Registra un nuevo usuario",
+                "operationId": "registerAPI",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": ["name", "email", "password"],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Nombre Usuario"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "usuario@dominio.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "contraseña"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Registro exitoso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "user": {},
+                                        "token": {
+                                            "type": "string",
+                                            "example": "auth_token"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Error de validación",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Error de validación"
+                                        },
+                                        "errors": {
+                                            "type": "object",
+                                            "example": {
+                                                "field": ["error message"]
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/logout": {
+            "post": {
+                "tags": ["Authentication"],
+                "summary": "Cerrar sesión",
+                "description": "Cierra la sesión actual del usuario",
+                "operationId": "logoutAPI",
+                "responses": {
+                    "200": {
+                        "description": "Sesión cerrada correctamente",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Sesión cerrada correctamente"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "passport": []
+                    }
+                ]
+            }
+        },
+        "/api/tasks": {
+            "get": {
+                "tags": ["Tasks"],
+                "summary": "Obtener todas las tareas",
+                "description": "Retorna todas las tareas disponibles",
+                "operationId": "getTasksAPI",
+                "responses": {
+                    "200": {
+                        "description": "Lista de tareas",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "tasks": {},
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Tareas obtenidas correctamente"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "passport": []
+                    }
+                ]
+            }
+        },
+        "/api/tags": {
+            "get": {
+                "tags": ["Tags"],
+                "summary": "Obtener todas las etiquetas",
+                "description": "Retorna todas las etiquetas disponibles",
+                "operationId": "getTagsAPI",
+                "responses": {
+                    "200": {
+                        "description": "Lista de etiquetas",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "tags": {},
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Etiquetas obtenidas correctamente"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "passport": []
+                    }
+                ]
+            }
+        },
+        "/api/tasks/create": {
+            "post": {
+                "tags": ["Tasks"],
+                "summary": "Crear una nueva tarea",
+                "description": "Crea una nueva tarea con la información proporcionada",
+                "operationId": "createTaskAPI",
+                "requestBody": {
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Tarea creada correctamente",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "task": {},
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Tarea creada correctamente"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Error de validación",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Error de validación"
+                                        },
+                                        "errors": {
+                                            "type": "object",
+                                            "example": {
+                                                "field": ["error message"]
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "passport": []
+                    }
+                ]
+            }
+        },
+        "/api/users": {
+            "get": {
+                "tags": ["Users"],
+                "summary": "Obtener todos los usuarios",
+                "description": "Retorna todos los usuarios disponibles",
+                "operationId": "getUsersAPI",
+                "responses": {
+                    "200": {
+                        "description": "Lista de usuarios",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "users": {},
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Usuarios obtenidos correctamente"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "passport": []
+                    }
+                ]
+            }
+        },
+        "/api/tasks/{task}/update": {
+            "put": {
+                "tags": ["Tasks"],
+                "summary": "Actualizar una tarea existente",
+                "description": "Actualiza una tarea existente con la información proporcionada",
+                "operationId": "updateTaskAPI",
+                "parameters": [
+                    {
+                        "name": "task",
+                        "in": "path",
+                        "description": "ID de la tarea a actualizar",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "Tarea actualizada correctamente",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "task": {},
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Tarea actualizada correctamente"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Error de validación",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Error de validación"
+                                        },
+                                        "errors": {
+                                            "type": "object",
+                                            "example": {
+                                                "field": ["error message"]
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "passport": []
+                    }
+                ]
+            }
+        },
+        "/api/tasks/{task}/delete": {
+            "delete": {
+                "tags": ["Tasks"],
+                "summary": "Eliminar una tarea",
+                "description": "Elimina una tarea existente",
+                "operationId": "deleteTaskAPI",
+                "parameters": [
+                    {
+                        "name": "task",
+                        "in": "path",
+                        "description": "ID de la tarea a eliminar",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Tarea eliminada correctamente",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Tarea eliminada correctamente"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "passport": []
+                    }
+                ]
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Authentication",
+            "description": "API endpoints for user authentication"
+        },
+        {
+            "name": "Tasks",
+            "description": "API endpoints related to tasks"
+        }
+    ]
+}

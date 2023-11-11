@@ -137,6 +137,7 @@ return [
     |
     | Supported drivers: "file", "cache"
     |
+
     */
 
     'maintenance' => [
@@ -169,6 +170,7 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
         Laraveles\Spanish\SpanishServiceProvider::class,
+        L5Swagger\L5SwaggerServiceProvider::class,
     ])->toArray(),
 
     /*

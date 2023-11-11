@@ -6,7 +6,34 @@ use App\Models\Tag;
 use App\Models\Task;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
+/**
+ * @OA\Info(
+ *     title="Laravel API",
+ *     version="1.0.0",
+ *     @OA\Contact(
+ *         email="juanjo_meifer@hotmail.com"
+ *    )
+ * )
+ */
+/**
+ * @OA\Tag(
+ *     name="Tasks",
+ *     description="API endpoints related to tasks"
+ * )
+ * @OA\Tag(
+ *     name="Authentication",
+ *     description="API endpoints for user authentication"
+ * )
+ */
+
+/**
+ * @OA\Tag(
+ *     name="Tasks",
+ *     description="API endpoints related to tasks"
+ * )
+ */
 class TaskController extends Controller
 {
     private function getTasks()
@@ -135,5 +162,277 @@ class TaskController extends Controller
         $this->authorize('delete', $task);
         $task->delete();
         return redirect()->route('tasks.index');
+    }
+
+    /**
+     * METODOS API
+     */
+
+
+    /**
+     * @OA\Get(
+     *     path="/api/tasks",
+     *     operationId="getTasksAPI",
+     *     tags={"Tasks"},
+     *     summary="Obtener todas las tareas",
+     *     description="Retorna todas las tareas disponibles",
+     *     @OA\Response(
+     *         response=200,
+     *         description="Lista de tareas",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="tasks"),
+     *             @OA\Property(property="message", type="string", example="Tareas obtenidas correctamente"),
+     *         ),
+     *     ),
+     *     security={
+     *         {"passport": {}}
+     *     }
+     * )
+     */
+    public function getTasksAPI()
+    {
+        $tasks = $this->getTasks();
+        return response()->json([
+            'tasks' => $tasks,
+            'message' => 'Tareas obtenidas correctamente'
+        ]);
+    }
+    /**
+     * @OA\Get(
+     *     path="/api/tags",
+     *     operationId="getTagsAPI",
+     *     tags={"Tags"},
+     *     summary="Obtener todas las etiquetas",
+     *     description="Retorna todas las etiquetas disponibles",
+     *     @OA\Response(
+     *         response=200,
+     *         description="Lista de etiquetas",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="tags"),
+     *             @OA\Property(property="message", type="string", example="Etiquetas obtenidas correctamente"),
+     *         ),
+     *     ),
+     *     security={
+     *         {"passport": {}}
+     *     }
+     * )
+     */
+    public function getTagsAPI()
+    {
+        $tags = $this->getTags();
+        return response()->json([
+            'tags' => $tags,
+            'message' => 'Etiquetas obtenidas correctamente'
+        ]);
+    }
+
+    /**
+     * @OA\Post(
+     *     path="/api/tasks/create",
+     *     operationId="createTaskAPI",
+     *     tags={"Tasks"},
+     *     summary="Crear una nueva tarea",
+     *     description="Crea una nueva tarea con la información proporcionada",
+     *     @OA\RequestBody(
+     *         required=true,
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Tarea creada correctamente",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="task"),
+     *             @OA\Property(property="message", type="string", example="Tarea creada correctamente"),
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Error de validación",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="message", type="string", example="Error de validación"),
+     *             @OA\Property(property="errors", type="object", example={"field": {"error message"}}),
+     *         ),
+     *     ),
+     *     security={
+     *         {"passport": {}}
+     *     }
+     * )
+     */
+    public function createTaskAPI(Request $request)
+    {
+        $data = $request->all();
+
+        $data['tags'] = explode(',', $data['tags']);
+
+        $validator = Validator::make($data, [
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string|max:255',
+            'due_date' => 'required|date',
+            'user_id' => 'required|exists:users,id',
+            'tags' => 'required|array|in:' . implode(',', Tag::pluck('id')->toArray()),
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Error de validación',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $task = Task::create([
+            'name' => $request->name,
+            'description' => $request->description,
+            'due_date' => $request->due_date,
+            'user_id' => $request->user_id,
+        ]);
+        $task->tags()->sync($data['tags']);
+        return response()->json([
+            'task' => $task->load(['user', 'tags']),
+            'message' => 'Tarea creada correctamente'
+        ]);
+    }
+
+
+    /**
+     * @OA\Get(
+     *     path="/api/users",
+     *     operationId="getUsersAPI",
+     *     tags={"Users"},
+     *     summary="Obtener todos los usuarios",
+     *     description="Retorna todos los usuarios disponibles",
+     *     @OA\Response(
+     *         response=200,
+     *         description="Lista de usuarios",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="users"),
+     *             @OA\Property(property="message", type="string", example="Usuarios obtenidos correctamente"),
+     *         ),
+     *     ),
+     *     security={
+     *         {"passport": {}}
+     *     }
+     * )
+     */
+    public function getUsersAPI()
+    {
+        $users = $this->getUsers();
+        return response()->json([
+            'users' => $users,
+            'message' => 'Usuarios obtenidos correctamente'
+        ]);
+    }
+
+
+    /**
+     * @OA\Put(
+     *     path="/api/tasks/{task}/update",
+     *     operationId="updateTaskAPI",
+     *     tags={"Tasks"},
+     *     summary="Actualizar una tarea existente",
+     *     description="Actualiza una tarea existente con la información proporcionada",
+     *     @OA\Parameter(
+     *         name="task",
+     *         in="path",
+     *         description="ID de la tarea a actualizar",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Tarea actualizada correctamente",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="task"),
+     *             @OA\Property(property="message", type="string", example="Tarea actualizada correctamente"),
+     *         ),
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Error de validación",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="message", type="string", example="Error de validación"),
+     *             @OA\Property(property="errors", type="object", example={"field": {"error message"}}),
+     *         ),
+     *     ),
+     *     security={
+     *         {"passport": {}}
+     *     }
+     * )
+     */
+    public function updateTaskApi(Task $task, Request $request)
+    {
+        $data = $request->all();
+
+        $data['tags'] = explode(',', $data['tags']);
+
+        $validator = Validator::make($data, [
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string|max:255',
+            'due_date' => 'required|date',
+            'user_id' => 'required|exists:users,id',
+            'tags' => 'required|array|in:' . implode(',', Tag::pluck('id')->toArray()),
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Error de validación',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $task->update([
+            'name' => $request->name,
+            'description' => $request->description,
+            'due_date' => $request->due_date,
+            'user_id' => $request->user_id,
+        ]);
+        $task->tags()->sync($data['tags']);
+        return response()->json([
+            'task' => $task->load(['user', 'tags']),
+            'message' => 'Tarea actualizada correctamente'
+        ]);
+    }
+
+    /**
+     * @OA\Delete(
+     *     path="/api/tasks/{task}/delete",
+     *     operationId="deleteTaskAPI",
+     *     tags={"Tasks"},
+     *     summary="Eliminar una tarea",
+     *     description="Elimina una tarea existente",
+     *     @OA\Parameter(
+     *         name="task",
+     *         in="path",
+     *         description="ID de la tarea a eliminar",
+     *         required=true,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Tarea eliminada correctamente",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="message", type="string", example="Tarea eliminada correctamente"),
+     *         ),
+     *     ),
+     *     security={
+     *         {"passport": {}}
+     *     }
+     * )
+     */
+    public function deleteTaskApi(Task $task)
+    {
+        $task->delete();
+        return response()->json([
+            'message' => 'Tarea eliminada correctamente'
+        ]);
     }
 }
