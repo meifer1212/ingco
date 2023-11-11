@@ -6,6 +6,7 @@ use App\Models\Tag;
 use App\Models\Task;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Validator;
 
 /**
@@ -32,41 +33,67 @@ use Illuminate\Support\Facades\Validator;
  */
 class TaskController extends Controller
 {
+    protected $ttl = 60 * 5; // ttl de 5 minutos
+
     private function getTasks()
     {
         $user_id = request()->get('user_id', null);
         $search = trim(request()->get('search', null));
+        $currentPage = request()->get('page', 1);
+        $claveTask = 'task-' . $user_id . $search . $currentPage;
 
-        $query = Task::with(['user', 'tags'])
-            ->when($user_id, function ($query, $user_id) {
-                return $query->where('user_id', $user_id);
-            })
-            ->when($search, function ($query, $search) {
-                return $query->where(function ($q) use ($search) {
-                    $q->where('name', 'like', '%' . $search . '%')
-                        ->orWhere('description', 'like', '%' . $search . '%')
-                        ->orWhereHas('user', function ($q) use ($search) {
-                            $q->where('name', 'like', '%' . $search . '%');
-                        })
-                        ->orWhereHas('tags', function ($q) use ($search) {
-                            $q->where('name', 'like', '%' . $search . '%');
-                        });
-                });
-            })
-            ->orderByDesc('id')
-            ->paginate(10);
+        // validar con la bandera si aún debe conservarse el cache de tasks. true = se conserva, false = se elimina
+        $flagValue = Cache::get('task-flag');
+        if (!($flagValue !== null && $flagValue === true)) {
+            Cache::forget($claveTask);
+        }
 
-        return $query;
+        // Obtener la lista de productos desde la caché o desde la base de datos
+        $ttl = $this->ttl;
+        $tasks = Cache::remember($claveTask, $ttl, function () use ($user_id, $search) {
+            return Task::with(['user', 'tags'])
+                ->when($user_id, function ($query, $user_id) {
+                    return $query->where('user_id', $user_id);
+                })
+                ->when($search, function ($query, $search) {
+                    return $query->where(function ($q) use ($search) {
+                        $q->where('name', 'like', '%' . $search . '%')
+                            ->orWhere('description', 'like', '%' . $search . '%')
+                            ->orWhereHas('user', function ($q) use ($search) {
+                                $q->where('name', 'like', '%' . $search . '%');
+                            })
+                            ->orWhereHas('tags', function ($q) use ($search) {
+                                $q->where('name', 'like', '%' . $search . '%');
+                            });
+                    });
+                })
+                ->orderByDesc('id')
+                ->paginate(10);
+        });
+
+        Cache::put('task-flag', true, $ttl); // se guarda la bandera para conservar el cache de taskss
+
+        return $tasks;
     }
 
     private function getTags()
     {
-        return Tag::orderBy('name')->get();
+        // return Tag::orderBy('name')->get();
+        $ttl = $this->ttl;
+        $tags = Cache::remember('tags', $ttl, function () {
+            return Tag::orderBy('name')->get();
+        });
+        return $tags;
     }
 
     private function getUsers()
     {
-        return User::orderBy('name')->get();
+        // return User::orderBy('name')->get();
+        $ttl = $this->ttl;
+        $users = Cache::remember('users', $ttl, function () {
+            return User::orderBy('name')->get();
+        });
+        return $users;
     }
 
     public function index()
@@ -105,6 +132,7 @@ class TaskController extends Controller
             'due_date' => $request->due_date,
             'user_id' => $request->user_id,
         ]);
+        Cache::forget('task-flag'); // se elimina la bandera para NO conservar el cache de tasks
         $task->tags()->sync($request->tags);
         return redirect()->route('tasks.index', $task->id);
     }
@@ -145,6 +173,7 @@ class TaskController extends Controller
             'user_id' => $request->user_id,
         ]);
         $task->tags()->sync($request->tags);
+        Cache::forget('task-flag'); // se elimina la bandera para NO conservar el cache de tasks
         return redirect()->route('tasks.index', $task->id);
     }
 
@@ -291,6 +320,7 @@ class TaskController extends Controller
             'user_id' => $request->user_id,
         ]);
         $task->tags()->sync($data['tags']);
+        Cache::forget('task-flag'); // se elimina la bandera para NO conservar el cache de tasks
         return response()->json([
             'task' => $task->load(['user', 'tags']),
             'message' => 'Tarea creada correctamente'
@@ -404,6 +434,7 @@ class TaskController extends Controller
             'user_id' => $request->user_id,
         ]);
         $task->tags()->sync($data['tags']);
+        Cache::forget('task-flag'); // se elimina la bandera para NO conservar el cache de tasks
         return response()->json([
             'task' => $task->load(['user', 'tags']),
             'message' => 'Tarea actualizada correctamente'
