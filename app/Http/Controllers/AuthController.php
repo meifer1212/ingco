@@ -8,33 +8,27 @@ use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
-    public function registerView()
-    {
-        return view('register');
-    }
-
-    public function loginView()
-    {
-        return view('login');
-    }
-
     public function register(Request $request)
     {
         $request->validate([
-            'name' => 'required',
             'email' => 'required|email|unique:users,email',
-            'password' => 'required|min:6'
+            'password' => 'required|min:6',
+            'name' => 'required|min:3|max:255'
+        ], [], [
+            'email' => 'correo electrónico',
+            'password' => 'contraseña',
+            'name' => 'nombre'
         ]);
 
         $user = User::create([
-            'name' => $request->name, // $request->name is the name of the input field in the register form
+            'name' => $request->name,
             'email' => $request->email,
             'password' => bcrypt($request->password) // bcrypt() is a helper function that hashes the password
         ]);
 
         Auth::login($user);
 
-        return redirect()->route('tasks');
+        return redirect()->route('tasks.index');
     }
 
     public function login(Request $request)
@@ -42,14 +36,26 @@ class AuthController extends Controller
         $request->validate([
             'email' => 'required|email',
             'password' => 'required'
+        ], [], [
+            'email' => 'correo electrónico',
+            'password' => 'contraseña'
         ]);
 
         $credentials = $request->only('email', 'password');
 
         if (Auth::attempt($credentials)) {
-            return redirect()->route('tasks');
+            return redirect()->route('tasks.index');
         }
 
-        return redirect()->back()->withErrors(['Las credenciales no coinciden']);
+        return redirect()->back()->withInput()->withErrors(
+            'Las credenciales no coinciden con nuestros registros'
+        );
+    }
+
+    public function logout()
+    {
+        Auth::logout();
+
+        return redirect()->route('login');
     }
 }

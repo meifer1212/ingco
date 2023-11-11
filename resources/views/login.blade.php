@@ -1,4 +1,0 @@
-@extends('app')
-<div>
-
-</div>

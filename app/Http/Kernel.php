@@ -65,5 +65,6 @@ class Kernel extends HttpKernel
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'noauth' => \App\Http\Middleware\NoAuth::class,
+        'check.task.ownership' => \App\Http\Middleware\CheckTaskOwnershipMiddleware::class,
     ];
 }
